@@ -2,9 +2,7 @@ package com.github.sandtechnology.ccattackblocker;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.event.ClientConnectEvent;
-import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
@@ -15,13 +13,12 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public final class CCAttackBlocker extends Plugin implements Listener {
 
-    Cache<String,Integer> ipAccessingCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
-    Map<String,Long> bannedIpMap=new ConcurrentHashMap<>();
-    Map<String, Integer> bannedIpCountMap=new ConcurrentHashMap<>();
+    final Cache<String,Integer> ipAccessingCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    final Map<String,Long> bannedIpMap=new ConcurrentHashMap<>();
+    final Map<String, Integer> bannedIpCountMap=new ConcurrentHashMap<>();
 
     public int getBannedIpCount() {
         return bannedIpMap.size();

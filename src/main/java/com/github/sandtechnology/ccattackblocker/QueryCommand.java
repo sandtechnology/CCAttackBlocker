@@ -5,10 +5,9 @@ import net.md_5.bungee.api.plugin.Command;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class QueryCommand extends Command {
-    CCAttackBlocker plugin;
+    final CCAttackBlocker plugin;
     public QueryCommand(CCAttackBlocker plugin,String name, String permission, String... aliases) {
         super(name, permission, aliases);
         this.plugin=plugin;
