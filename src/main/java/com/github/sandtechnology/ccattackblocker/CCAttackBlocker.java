@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 public final class CCAttackBlocker extends Plugin implements Listener {
 
-    final Cache<String,Integer> ipAccessingCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
-    final Map<String,Long> bannedIpMap=new ConcurrentHashMap<>();
-    final Map<String, Integer> bannedIpCountMap=new ConcurrentHashMap<>();
+    final Cache<String, Integer> ipAccessingCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    final Map<String, Long> bannedIpMap = new ConcurrentHashMap<>();
+    final Map<String, Integer> bannedIpCountMap = new ConcurrentHashMap<>();
 
     public int getBannedIpCount() {
         return bannedIpMap.size();
@@ -26,61 +26,64 @@ public final class CCAttackBlocker extends Plugin implements Listener {
 
     @Override
     public void onEnable() {
-        new QueryCommand(this,"ccblocker","ccblocker.query","");
-        getProxy().getPluginManager().registerListener(this,this);
+        new QueryCommand(this, "ccblocker", "ccblocker.query", "");
+        getProxy().getPluginManager().registerListener(this, this);
     }
+
     @Override
     public void onDisable() {
         getProxy().getPluginManager().unregisterListener(this);
         // Plugin shutdown logic
     }
-    private long getBannedExpiredTime(int bannedTimes){
-        long bannedExpiredTime=System.currentTimeMillis();
-        switch (bannedTimes){
+
+    private long getBannedExpiredTime(int bannedTimes) {
+        long bannedExpiredTime = System.currentTimeMillis();
+        switch (bannedTimes) {
             case 1:
-            bannedExpiredTime+=TimeUnit.MINUTES.toMillis(1);
-            break;
+                bannedExpiredTime += TimeUnit.MINUTES.toMillis(1);
+                break;
             case 2:
-            bannedExpiredTime+=TimeUnit.MINUTES.toMillis(5);
+                bannedExpiredTime += TimeUnit.MINUTES.toMillis(5);
                 break;
             case 3:
-            bannedExpiredTime+=TimeUnit.MINUTES.toMillis(10);
+                bannedExpiredTime += TimeUnit.MINUTES.toMillis(10);
                 break;
             default:
-            bannedExpiredTime+=bannedTimes*TimeUnit.MINUTES.toMillis(10);
+                bannedExpiredTime += bannedTimes * TimeUnit.MINUTES.toMillis(10);
 
         }
         return bannedExpiredTime;
     }
-    @EventHandler
-    public void onPlayerConnected(ClientConnectEvent event){
-        SocketAddress socketAddress=event.getSocketAddress();
 
-        if (socketAddress instanceof InetSocketAddress){
-            InetAddress address=((InetSocketAddress) socketAddress).getAddress();
-            if(!address.isAnyLocalAddress()) {
+    @EventHandler
+    public void onPlayerConnected(ClientConnectEvent event) {
+        SocketAddress socketAddress = event.getSocketAddress();
+
+        if (socketAddress instanceof InetSocketAddress) {
+            InetAddress address = ((InetSocketAddress) socketAddress).getAddress();
+            if (!address.isAnyLocalAddress()) {
                 String ip = address.getHostAddress();
-                Long bannedExpiredTime=bannedIpMap.get(ip);
-                if(bannedExpiredTime!=null){
-                    if(bannedExpiredTime<System.currentTimeMillis()){
+                Long bannedExpiredTime = bannedIpMap.get(ip);
+                if (bannedExpiredTime != null) {
+                    if (bannedExpiredTime < System.currentTimeMillis()) {
                         event.setCancelled(true);
                         return;
-                    }else {
+                    } else {
                         bannedIpMap.remove(ip);
                         ipAccessingCache.invalidate(ip);
                     }
                 }
-                Integer integer= ipAccessingCache.getIfPresent(ip);
-                if(integer!=null){
-                    if(integer>=10){
-                        int bannedTimes=bannedIpCountMap.merge(ip,1, Integer::sum);
-                        bannedIpMap.put(ip,getBannedExpiredTime(bannedTimes));
+                Integer integer = ipAccessingCache.getIfPresent(ip);
+                if (integer != null) {
+                    if (integer >= 10) {
+                        int bannedTimes = bannedIpCountMap.merge(ip, 1, Integer::sum);
+                        bannedIpMap.put(ip, getBannedExpiredTime(bannedTimes));
                         event.setCancelled(true);
                         return;
                     }
-                    ipAccessingCache.put(ip,integer+1);
-                }else {
-                    ipAccessingCache.put(ip,1);
+                    ipAccessingCache.put(ip, integer + 1);
+                } else {
+                    ipAccessingCache.put(ip, 1);
                 }
             }
         }
