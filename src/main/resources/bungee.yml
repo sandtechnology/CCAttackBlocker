@@ -1,0 +1,4 @@
+name: CCAttackBlocker
+version: '${project.version}'
+main: com.github.sandtechnology.ccattackblocker.CCAttackBlocker
+description: A blocker for protecting server from CCAttack
